@@ -1,0 +1,97 @@
+use HealthcareDB;
+show tables;
+# Query 1: List all Patients 
+select * from Patients;
+
+# Query 2: Show all doctors by their specialization 
+select specialization, count(*) as total_doctors 
+from Doctors 
+Group by specialization;
+
+# Query 3: show uncoming Appointments 
+SELECT a.appointment_id, p.name AS patient, d.name AS doctor, a.appointment_date
+FROM Appointments a
+JOIN Patients p ON a.patient_id = p.patient_id
+JOIN Doctors d ON a.doctor_id = d.doctor_id
+WHERE a.status = 'Scheduled';
+
+# Query 4: total billing per patient
+SELECT p.name, SUM(b.amount) AS total_billed
+FROM Billing b
+JOIN Patients p ON b.patient_id = p.patient_id
+GROUP BY p.name;
+
+# Query 5: Get all unpaid bills 
+SELECT b.bill_id, p.name, b.amount
+FROM Billing b
+JOIN Patients p ON b.patient_id = p.patient_id
+WHERE b.payment_status = 'Unpaid';
+
+# Query 6: List all completed appointments in September 2025
+SELECT * FROM Appointments
+WHERE status = 'Completed'
+  AND appointment_date BETWEEN '2025-08-01' AND '2025-08-08';
+
+# Query 7: Patients medical records 
+SELECT p.name, r.diagnosis, r.treatment, r.record_date
+FROM Medical_Records r
+JOIN Patients p ON r.patient_id = p.patient_id
+ORDER BY r.record_date DESC;
+
+# Query 8: Patients treated by Neurology
+SELECT DISTINCT p.name
+FROM Appointments a
+JOIN Doctors d ON a.doctor_id = d.doctor_id
+JOIN Patients p ON a.patient_id = p.patient_id
+WHERE d.specialization = 'Neurology';
+
+
+# Query 9: Find doctors who have appointments
+SELECT DISTINCT d.name, d.specialization
+FROM Appointments a
+JOIN Doctors d ON a.doctor_id = d.doctor_id;
+
+# Query 10: Patients who have never had an appointment
+SELECT p.name
+FROM Patients p
+LEFT JOIN Appointments a ON p.patient_id = a.patient_id
+WHERE a.patient_id IS NULL;
+
+# Query 11: List prescriptions for each patient
+SELECT p.name, pr.medicine, pr.dosage, pr.duration
+FROM Prescriptions pr
+JOIN Medical_Records mr ON pr.record_id = mr.record_id
+JOIN Patients p ON mr.patient_id = p.patient_id;
+
+# Query 12: Top 3 patients with highest bills
+SELECT p.name, SUM(b.amount) AS total_bill
+FROM Billing b
+JOIN Patients p ON b.patient_id = p.patient_id
+GROUP BY p.name
+ORDER BY total_bill DESC
+LIMIT 3;
+
+# Query 13: Total revenue from paid bills
+SELECT SUM(amount) AS total_revenue
+FROM Billing
+WHERE payment_status = 'Paid';
+
+# Query 14: Find doctors who haven’t had any appointments
+SELECT d.name
+FROM Doctors d
+LEFT JOIN Appointments a ON d.doctor_id = a.doctor_id
+WHERE a.appointment_id IS NULL;
+
+# Query 15: Patients with more than one appointment
+ SELECT p.name, COUNT(*) AS appointment_count
+FROM Appointments a
+JOIN Patients p ON a.patient_id = p.patient_id
+GROUP BY p.name
+HAVING COUNT(*) > 1;
+
+# Query 16:Patients treated by Cardiology
+SELECT DISTINCT p.name 
+FROM Appointments a 
+JOIN Doctors d ON a.doctor_id = d.doctor_id 
+JOIN Patients p ON a.patient_id = p.patient_id
+WHERE d.specialization = 'Cardiology';
